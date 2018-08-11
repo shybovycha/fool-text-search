@@ -3,6 +3,9 @@
     "build": "./node_modules/.bin/tsc"
   },
   "devDependencies": {
+    "@types/node": "^10.5.8",
+    "crypto": "^1.0.1",
+    "tslint": "^5.11.0",
     "typescript": "^3.0.1"
   }
 }
