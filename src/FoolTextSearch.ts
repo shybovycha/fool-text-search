@@ -1,6 +1,4 @@
-import 'crypto';
-
-class UUIDGenerator {
+export class UUIDGenerator {
   private static DEFAULT_LENGTH = 32;
 
   private static dec2hex(dec: number): string {
@@ -8,11 +6,15 @@ class UUIDGenerator {
   }
 
   public static generate(length = UUIDGenerator.DEFAULT_LENGTH): string {
-    const arr = new Uint8Array(length / 2);
-
-    crypto.getRandomValues(arr);
+    const arr = UUIDGenerator.getRandomValues(length);
 
     return Array.from(arr, UUIDGenerator.dec2hex).join("");
+  }
+
+  public static getRandomValues(length: number): Array<number> {
+    const arr = new Uint8Array(length / 2);
+
+    return Array.from(window.crypto.getRandomValues(arr));
   }
 }
 
@@ -245,7 +247,7 @@ export class Index {
     documents.forEach(doc => this.index(doc));
   }
 
-  public search(query: Query): Set<Document> {
+  public search(query: Query): Array<Document> {
     const matchingDocumentIds = new Set();
 
     for (let matcher of query.matchers) {
@@ -269,7 +271,7 @@ export class Index {
       results.add(this.documentById.get(documentId))
     );
 
-    return results;
+    return Array.from(results);
   }
 
   private processTerms(documentId: string, terms: Array<string>) {
