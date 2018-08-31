@@ -1,20 +1,16 @@
-import {
-  Document,
-  Index,
-  Query,
-  Matchers,
-  UUIDGenerator
-} from "../src/FoolTextSearch";
+import "./helpers/contains_all_matcher";
 
-const getRandomValuesMock = jest.fn();
+jest.mock("../src/document/UUIDGenerator");
 
-getRandomValuesMock
-  .mockReturnValueOnce("id1")
-  .mockReturnValueOnce("id2")
-  .mockReturnValueOnce("id3")
-  .mockReturnValueOnce("id4");
+import Document from "../src/document/Document";
+import Query from "../src/query/Query";
+import Index from "../src/index/Index";
 
-UUIDGenerator.getRandomValues = getRandomValuesMock;
+import DamerauLevenshteinMatcher from "../src/query/matchers/DamerauLevenshteinMatcher";
+import LinearLevenshteinMatcher from "../src/query/matchers/LinearLevenshteinMatcher";
+import RecursiveLevenshteinMatcher from "../src/query/matchers/RecursiveLevenshteinMatcher";
+import PrefixMatcher from "../src/query/matchers/PrefixMatcher";
+import ExactMatcher from "../src/query/matchers/ExactMatcher";
 
 describe("FoolTextSearch", () => {
   let index;
@@ -34,24 +30,22 @@ describe("FoolTextSearch", () => {
 
       it("with ExactMatcher", () => {
         const query = new Query();
-        query.addClause(new Matchers.ExactMatcher("goodbye"));
+        query.addClause(new ExactMatcher("goodbye"));
       });
 
       describe("with PrefixMatcher", () => {
         it("for matching query", () => {
           const query = new Query();
-          query.addClause(new Matchers.PrefixMatcher("mo"));
+          query.addClause(new PrefixMatcher("mo"));
 
           const results = index.search(query);
 
-          expect(results).toContain(doc2);
-          expect(results).toContain(doc3);
-          expect(results).toContain(doc4);
+          expect(results).toContainAll(doc2, doc3, doc4);
         });
 
         it("for non-matching query", () => {
           const query = new Query();
-          query.addClause(new Matchers.PrefixMatcher("o"));
+          query.addClause(new PrefixMatcher("o"));
 
           expect(index.search(query)).toEqual([]);
         });
@@ -59,21 +53,21 @@ describe("FoolTextSearch", () => {
 
       it("with DamerauLevenshteinMatcher", () => {
         const query = new Query();
-        query.addClause(new Matchers.DamerauLevenshteinMatcher("cast"));
+        query.addClause(new DamerauLevenshteinMatcher("cast"));
 
         expect(index.search(query)).toContain(doc4);
       });
 
       it("with LinearLevenshteinMatcher", () => {
         const query = new Query();
-        query.addClause(new Matchers.LinearLevenshteinMatcher("cast"));
+        query.addClause(new LinearLevenshteinMatcher("cast"));
 
         expect(index.search(query)).toContain(doc4);
       });
 
       it("with RecursiveLevenshteinMatcher", () => {
         const query = new Query();
-        query.addClause(new Matchers.RecursiveLevenshteinMatcher("cast"));
+        query.addClause(new RecursiveLevenshteinMatcher("cast"));
 
         expect(index.search(query)).toContain(doc4);
       });
