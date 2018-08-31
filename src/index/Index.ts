@@ -30,7 +30,6 @@ export default class Index {
         const matchingDocumentIds = new Set();
 
         for (let matcher of query.matchers) {
-            debugger;
             const matchingIndexTerms = Array.from(this.termDescriptors.keys()).filter(
                 term => matcher.match(term)
             );
